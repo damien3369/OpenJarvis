@@ -36,8 +36,11 @@ max_facts = 1000
 [speech]
 # Reconnaissance vocale en français (faster-whisper, 100 % local).
 language = "fr"
-model = "base"
+# "small" comprend bien mieux le français que "base" (≈ 460 Mo, un peu plus lent).
+model = "small"
 compute_type = "int8"      # Mac Intel sans GPU
+# Mots que Jarvis doit s'attendre à entendre (évite "image" au lieu de "email").
+initial_prompt = "Conversation en français avec Jarvis, l'assistant de Damien. Vocabulaire : email, e-mail, mail, mails, Gmail, boîte de réception, agenda, calendrier, rendez-vous, réunion, briefing, rappel."
 # Voix : Audrey (française, féminine). Autres : "Amélie", "Thomas"
 # (Réglages Système → Accessibilité → Contenu énoncé → Voix du système → Gérer les voix).
 tts_backend = "macos_say"

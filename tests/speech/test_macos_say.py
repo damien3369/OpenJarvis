@@ -77,3 +77,4 @@ def test_listed_as_local_backend_with_french_default():
 
     assert TTS_BACKEND_ORDER.index("macos_say") < TTS_BACKEND_ORDER.index("openai_tts")
     assert default_voice_for("macos_say") == "Thomas"
+

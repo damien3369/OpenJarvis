@@ -34,8 +34,13 @@ class FasterWhisperBackend(SpeechBackend):
         model_size: str = "base",
         device: str = "auto",
         compute_type: str = "float16",
+        initial_prompt: str = "",
     ) -> None:
         self._model_size = model_size
+        # Vocabulary hint for Whisper: names and words it should expect
+        # (e.g. "email, Gmail, agenda") — sharply reduces mishearings on
+        # small models in non-English languages.
+        self._initial_prompt = initial_prompt
         self._device = device
         self._compute_type = compute_type
         self._model: Optional[WhisperModel] = None
@@ -119,6 +124,8 @@ class FasterWhisperBackend(SpeechBackend):
                 kwargs = {}
                 if language:
                     kwargs["language"] = language
+                if self._initial_prompt:
+                    kwargs["initial_prompt"] = self._initial_prompt
 
                 segments_iter, info = model.transcribe(tmp.name, **kwargs)
                 segments_list = list(segments_iter)
