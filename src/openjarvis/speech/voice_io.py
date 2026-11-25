@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import os
 import wave
 from pathlib import Path
 
@@ -114,12 +115,45 @@ def play_audio_file(path: str | Path) -> None:
         sd.stop()
 
 
+def _play_with_afplay(audio: bytes) -> bool:
+    """Play WAV bytes with macOS ``afplay``; return False if not applicable."""
+    import shutil
+    import subprocess
+    import sys
+    import tempfile
+
+    if sys.platform != "darwin" or audio[:4] != b"RIFF" or audio[8:12] != b"WAVE":
+        return False
+    afplay = shutil.which("afplay")
+    if not afplay:
+        return False
+    fd, tmp = tempfile.mkstemp(suffix=".wav", prefix="jarvis-play-")
+    try:
+        with os.fdopen(fd, "wb") as fh:
+            fh.write(audio)
+        subprocess.run([afplay, tmp], check=True, capture_output=True)
+        return True
+    except (OSError, subprocess.CalledProcessError):
+        return False
+    finally:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+
+
 def play_wav(audio: bytes, sample_rate: int = 24000) -> None:
     """Play raw WAV bytes through the default output device.
 
     If the bytes are a valid WAV file, sample rate is read from the header;
     otherwise ``sample_rate`` is used as a fallback.
+
+    On macOS, WAV files are played through the system ``afplay`` player:
+    PortAudio playback underruns (audible crackling) on busy CPU-only Macs
+    while the local model and the next TTS chunk compete for the CPU.
     """
+    if _play_with_afplay(audio):
+        return
     try:
         import numpy as np
         import sounddevice as sd
