@@ -535,7 +535,7 @@ class Jarvis:
             from openjarvis.prompt.builder import SystemPromptBuilder
 
             agent_kwargs["prompt_builder"] = SystemPromptBuilder(
-                agent_template=self._config.agent.default_system_prompt or "",
+                agent_template=self._config.agent.resolved_system_prompt() or "",
                 memory_files_config=self._config.memory_files,
                 system_prompt_config=self._config.system_prompt,
             )

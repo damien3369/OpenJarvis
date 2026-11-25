@@ -506,7 +506,7 @@ def _run_agent(
         from openjarvis.prompt.builder import SystemPromptBuilder
 
         agent_kwargs["prompt_builder"] = SystemPromptBuilder(
-            agent_template=config.agent.default_system_prompt or "",
+            agent_template=config.agent.resolved_system_prompt() or "",
             memory_files_config=memory_files_config or config.memory_files,
             system_prompt_config=config.system_prompt,
             skill_catalog_xml=skill_catalog_xml,

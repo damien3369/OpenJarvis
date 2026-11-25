@@ -312,7 +312,7 @@ def chat(
                     from openjarvis.prompt.builder import SystemPromptBuilder
 
                     kwargs["prompt_builder"] = SystemPromptBuilder(
-                        agent_template=config.agent.default_system_prompt or "",
+                        agent_template=config.agent.resolved_system_prompt() or "",
                         memory_files_config=effective_mf,
                         system_prompt_config=config.system_prompt,
                     )
@@ -406,7 +406,7 @@ def chat(
         from openjarvis.prompt.builder import SystemPromptBuilder
 
         builder = SystemPromptBuilder(
-            agent_template=config.agent.default_system_prompt or "",
+            agent_template=config.agent.resolved_system_prompt() or "",
             memory_files_config=effective_mf,
             system_prompt_config=config.system_prompt,
         )

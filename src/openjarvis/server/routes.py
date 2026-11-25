@@ -77,7 +77,7 @@ def _ensure_identity_prompt(messages: list[Message], app_config) -> list[Message
 
     Resolution of the identity text: the config comes from ``app.state`` when
     wired, otherwise ``load_config()``; the prompt itself is assembled by
-    ``SystemPromptBuilder`` from ``agent.default_system_prompt`` plus the
+    ``SystemPromptBuilder`` from ``agent.resolved_system_prompt()`` plus the
     persona files (SOUL.md/MEMORY.md/USER.md), matching
     ``_build_managed_system_prompt`` in ``agent_manager_routes.py``. Config
     resolution is wrapped so a broken/missing config degrades to "no
@@ -109,7 +109,7 @@ def _ensure_identity_prompt(messages: list[Message], app_config) -> list[Message
             from openjarvis.prompt.builder import SystemPromptBuilder
 
             builder = SystemPromptBuilder(
-                agent_template=cfg.agent.default_system_prompt or "",
+                agent_template=cfg.agent.resolved_system_prompt() or "",
                 memory_files_config=getattr(cfg, "memory_files", None),
                 system_prompt_config=getattr(cfg, "system_prompt", None),
             )

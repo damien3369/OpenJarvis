@@ -578,10 +578,10 @@ class AgentExecutor:
                     agent_template=(
                         sys_prompt
                         if sys_prompt is not None
-                        else getattr(
-                            getattr(cfg, "agent", None),
-                            "default_system_prompt",
-                            "",
+                        else (
+                            cfg.agent.resolved_system_prompt()
+                            if getattr(cfg, "agent", None) is not None
+                            else ""
                         )
                         or ""
                     ),

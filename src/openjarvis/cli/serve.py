@@ -473,7 +473,7 @@ def serve(
                     from openjarvis.prompt.builder import SystemPromptBuilder
 
                     agent_kwargs["prompt_builder"] = SystemPromptBuilder(
-                        agent_template=config.agent.default_system_prompt or "",
+                        agent_template=config.agent.resolved_system_prompt() or "",
                         memory_files_config=config.memory_files,
                         system_prompt_config=config.system_prompt,
                     )

@@ -1,0 +1,50 @@
+# OpenJarvis — configuration personnelle (adaptée pour un usage en français)
+
+[engine]
+default = "ollama"
+
+[engine.ollama]
+host = "http://localhost:11434"
+
+[intelligence]
+# 2b = rapide sur un PC sans carte graphique. Si ton PC a un GPU / 16 Go+ :
+# passe à "qwen3.5:4b" ou "qwen3.5:9b" (ollama pull qwen3.5:9b).
+default_model = "qwen3.5:2b"
+temperature = 0.4
+max_tokens = 1024
+
+[agent]
+default_agent = "simple"
+max_turns = 10
+context_from_memory = true
+system_prompt = """Tu es Jarvis, l'assistant personnel de Damien. Tu tournes en local, sur sa propre machine.
+Réponds toujours en français, de façon directe, claire et concise — tutoie Damien.
+Si tu ne sais pas, dis-le plutôt que d'inventer. Si une demande est ambiguë, pose une seule question courte.
+Pour les actions risquées (supprimer des fichiers, exécuter des commandes système), explique ce que tu vas faire avant."""
+
+[tools]
+# shell_exec retiré par défaut : l'IA ne peut pas lancer de commandes système sans que tu le décides.
+enabled = ["code_interpreter", "web_search", "file_read", "calculator", "think"]
+
+[memory]
+# Mémoire longue durée : Jarvis retient les faits importants de vos conversations (stockés en local).
+enabled = true
+backend = "local"
+max_facts = 1000
+
+[speech]
+language = "fr"
+
+[server]
+host = "127.0.0.1"
+port = 8000
+agent = "orchestrator"
+
+[telemetry]
+# Mesures locales uniquement (vitesse, énergie) — rien n'est envoyé.
+enabled = true
+
+[analytics]
+# Statistiques d'usage envoyées à l'équipe OpenJarvis : désactivées.
+enabled = false
+choice_recorded = true

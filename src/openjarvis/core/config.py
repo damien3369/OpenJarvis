@@ -1147,6 +1147,26 @@ class AgentConfig:
         "helpfully, concisely, and accurately."
     )
 
+    def resolved_system_prompt(self) -> str:
+        """Return the identity prompt the user actually configured.
+
+        Precedence: inline ``system_prompt`` > file at ``system_prompt_path``
+        > built-in ``default_system_prompt``. Before this helper existed the
+        two user-facing fields were parsed but never consulted.
+        """
+        if self.system_prompt and self.system_prompt.strip():
+            return self.system_prompt
+        if self.system_prompt_path:
+            try:
+                text = Path(self.system_prompt_path).expanduser().read_text(
+                    encoding="utf-8"
+                )
+                if text.strip():
+                    return text
+            except OSError:
+                pass
+        return self.default_system_prompt
+
     # Backward-compat property for old field name
     @property
     def default_tools(self) -> str:

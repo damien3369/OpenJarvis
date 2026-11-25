@@ -235,7 +235,7 @@ class BaseAgent(ABC):
             # Fall back to the config-level default (grounds local models)
             try:
                 cfg = load_config()
-                effective_system_prompt = cfg.agent.default_system_prompt or None
+                effective_system_prompt = cfg.agent.resolved_system_prompt() or None
             except Exception:
                 effective_system_prompt = None
         # Fold ALL in-context system messages (both auto-captured memory
