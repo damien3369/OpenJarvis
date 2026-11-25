@@ -94,6 +94,31 @@ def _connect_source(registry: object, source: str, path: str = "") -> None:
                 "[/red]"
             )
 
+    elif callable(getattr(connector_cls, "connect_with_credentials", None)):
+        # Email + app-password connectors (gmail_imap, outlook, imap). They
+        # declare auth_type="oauth" only to reuse token storage; sending them
+        # down the OAuth path fails with "No OAuth provider configured".
+        try:
+            instance = connector_cls()
+            if instance.is_connected():
+                console.print(f"[green]{source} is already connected.[/green]")
+                return
+            help_url = ""
+            try:
+                help_url = instance.auth_url()
+            except Exception:  # noqa: BLE001
+                pass
+            if help_url:
+                console.print(f"[cyan]Create an app password at: {help_url}[/cyan]")
+            email_address = click.prompt("Email address").strip()
+            app_password = click.prompt("App password", hide_input=True)
+            # Google shows app passwords as "abcd efgh ijkl mnop".
+            app_password = app_password.replace(" ", "")
+            instance.connect_with_credentials(email_address, app_password)
+            console.print(f"[green]{source} connected successfully.[/green]")
+        except Exception as exc:  # noqa: BLE001
+            console.print(f"[red]Failed to connect {source}: {exc}[/red]")
+
     elif auth_type == "oauth":
         # OAuth connectors — auto-open browser + catch callback
         from openjarvis.connectors.oauth import (

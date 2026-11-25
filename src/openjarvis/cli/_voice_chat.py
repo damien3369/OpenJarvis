@@ -23,7 +23,7 @@ _MIN_SPEECH_CHUNK_CHARS = 20
 
 # Only local backends are warmed up with a real synthesis: for API backends
 # it would be a billed request the user never asked for.
-_LOCAL_TTS_BACKENDS = frozenset({"kokoro"})
+_LOCAL_TTS_BACKENDS = frozenset({"kokoro", "macos_say"})
 
 # Backend selection is shared with the API server and lives in
 # openjarvis.speech._tts_discovery. Importing that at module level would pull

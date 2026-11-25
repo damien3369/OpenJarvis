@@ -34,7 +34,15 @@ backend = "local"
 max_facts = 1000
 
 [speech]
+# Reconnaissance vocale en français (faster-whisper, 100 % local).
 language = "fr"
+model = "base"
+compute_type = "int8"      # Mac Intel sans GPU
+# Voix : celle intégrée à macOS. Autres voix FR : "Amélie", "Audrey"
+# (Réglages Système → Accessibilité → Contenu énoncé → Voix du système → Gérer les voix).
+tts_backend = "macos_say"
+voice_id = "Thomas"
+voice_speed = 1.0
 
 [server]
 host = "127.0.0.1"
@@ -49,3 +57,21 @@ enabled = true
 # Statistiques d'usage envoyées à l'équipe OpenJarvis : désactivées.
 enabled = false
 choice_recorded = true
+
+[digest]
+# Briefing du matin : `jarvis digest --fresh` (ou dis "bonjour" à Jarvis).
+enabled = true
+schedule = "0 7 * * 1-5"   # 7 h en semaine
+timezone = "Europe/Paris"
+persona = "jarvis_fr"
+honorific = "Damien"
+sections = ["messages", "calendar"]
+tts_backend = "macos_say"
+voice_id = "Thomas"
+voice_speed = 1.0
+
+[digest.messages]
+sources = ["gmail_imap"]   # Gmail via mot de passe d'application (pas de projet Google Cloud)
+
+[digest.calendar]
+sources = ["apple_calendar"]   # Calendrier du Mac, synchronisé avec Google Agenda

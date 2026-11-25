@@ -33,7 +33,7 @@ _SECTION_ORDER: List[tuple] = [
             "github_notifications",
         },
     ),
-    ("CALENDAR", {"gcalendar"}),
+    ("CALENDAR", {"gcalendar", "apple_calendar"}),
     ("WORLD", {"weather", "hackernews", "news_rss"}),
     ("MUSIC", {"spotify", "apple_music"}),
 ]
@@ -357,6 +357,57 @@ _FORMATTERS: Dict[str, Any] = {
 }
 
 
+def _format_apple_calendar(doc: Document) -> str:
+    """Format a macOS Calendar event document."""
+    meta = doc.metadata or {}
+    title = doc.title or meta.get("summary") or "(No title)"
+    when = "all day"
+    start = meta.get("start", "")
+    if start and not meta.get("all_day"):
+        try:
+            when = datetime.fromisoformat(start).strftime("%a %H:%M")
+        except ValueError:
+            when = start
+    elif start:
+        try:
+            when = datetime.fromisoformat(start).strftime("%a") + " all day"
+        except ValueError:
+            pass
+    line = f"[apple_calendar] {when}: {title}"
+    if meta.get("location"):
+        line += f" @ {meta['location']}"
+    return line
+
+
+_FORMATTERS["apple_calendar"] = _format_apple_calendar
+
+
+def _upcoming_apple_events(
+    docs: List[Document], now: datetime, days_ahead: int = 2
+) -> List[Document]:
+    """Keep today's and the next *days_ahead* days' events, soonest first.
+
+    The Apple Calendar connector stamps documents with their last-modified
+    time, so filtering by ``since`` would hide every event created more than
+    ``hours_back`` ago. Filter on the event start instead.
+    """
+    day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    horizon = day_start + timedelta(days=days_ahead + 1)
+    kept: List[tuple] = []
+    for doc in docs:
+        try:
+            start = datetime.fromisoformat((doc.metadata or {}).get("start", ""))
+        except ValueError:
+            continue
+        naive = start.replace(tzinfo=None) if start.tzinfo else start
+        if start.tzinfo is not None:
+            naive = start.astimezone().replace(tzinfo=None)
+        if day_start <= naive < horizon:
+            kept.append((naive, doc))
+    kept.sort(key=lambda t: t[0])
+    return [d for _, d in kept]
+
+
 def _format_doc(source: str, doc: Document) -> str:
     """Format a document using the source-specific formatter, with fallback."""
     formatter = _FORMATTERS.get(source)
@@ -508,11 +559,21 @@ class DigestCollectTool(BaseTool):
                 if unacted_only and source == "gmail":
                     sync_kwargs["query_extra"] = "is:unread"
 
-                for d in connector.sync(**sync_kwargs):
-                    if d.doc_id not in seen_ids:
-                        docs.append(d)
-                    if len(docs) >= max_per_source:
-                        break
+                if source == "apple_calendar":
+                    # The connector already bounds its own date window; see
+                    # _upcoming_apple_events for why ``since`` is not used.
+                    upcoming = _upcoming_apple_events(
+                        list(connector.sync()), datetime.now()
+                    )
+                    docs = [d for d in upcoming if d.doc_id not in seen_ids][
+                        :max_per_source
+                    ]
+                else:
+                    for d in connector.sync(**sync_kwargs):
+                        if d.doc_id not in seen_ids:
+                            docs.append(d)
+                        if len(docs) >= max_per_source:
+                            break
 
                 if unacted_only and source == "imessage":
                     docs = _filter_unanswered_threads(docs)
