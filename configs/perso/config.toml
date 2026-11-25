@@ -38,10 +38,10 @@ max_facts = 1000
 language = "fr"
 model = "base"
 compute_type = "int8"      # Mac Intel sans GPU
-# Voix : celle intégrée à macOS. Autres voix FR : "Amélie", "Audrey"
+# Voix : Audrey (française, féminine). Autres : "Amélie", "Thomas"
 # (Réglages Système → Accessibilité → Contenu énoncé → Voix du système → Gérer les voix).
 tts_backend = "macos_say"
-voice_id = "Thomas"
+voice_id = "Audrey"
 voice_speed = 1.0
 
 [server]
@@ -67,7 +67,7 @@ persona = "jarvis_fr"
 honorific = "Damien"
 sections = ["messages", "calendar"]
 tts_backend = "macos_say"
-voice_id = "Thomas"
+voice_id = "Audrey"
 voice_speed = 1.0
 
 [digest.messages]
