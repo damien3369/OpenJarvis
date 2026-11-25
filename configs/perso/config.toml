@@ -7,9 +7,10 @@ default = "ollama"
 host = "http://localhost:11434"
 
 [intelligence]
-# 2b = rapide sur un PC sans carte graphique. Si ton PC a un GPU / 16 Go+ :
-# passe à "qwen3.5:4b" ou "qwen3.5:9b" (ollama pull qwen3.5:9b).
-default_model = "qwen3.5:2b"
+# Mac Intel 8 Go sous Ventura : Ollama 0.12.3 maximum (les versions plus
+# récentes exigent macOS 14), donc modèle "qwen3:1.7b" (léger, bon en français).
+# Sur une machine plus puissante / Ollama récent : "qwen3.5:4b" ou "qwen3.5:9b".
+default_model = "qwen3:1.7b"
 temperature = 0.4
 max_tokens = 1024
 
